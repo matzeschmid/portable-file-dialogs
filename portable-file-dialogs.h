@@ -1132,7 +1132,12 @@ inline internal::file_dialog::file_dialog(type in_type,
         OPENFILENAMEW ofn;
         memset(&ofn, 0, sizeof(ofn));
         ofn.lStructSize = sizeof(OPENFILENAMEW);
-        ofn.hwndOwner = GetActiveWindow();
+        if (GetForegroundWindow() == GetActiveWindow()) {
+            ofn.hwndOwner = GetActiveWindow();
+        }
+        else {
+            ofn.hwndOwner = GetForegroundWindow();
+        }
 
         ofn.lpstrFilter = wfilter_list.c_str();
 
@@ -1444,7 +1449,13 @@ inline std::string internal::file_dialog::select_folder_vista(IFileDialog *ifd, 
     ifd->SetOptions(FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM);
     ifd->SetTitle(m_wtitle.c_str());
 
-    hr = ifd->Show(GetActiveWindow());
+    if (GetForegroundWindow() == GetActiveWindow()) {
+        hr = ifd->Show(GetActiveWindow());
+    }
+    else {
+        hr = ifd->Show(GetForegroundWindow());
+    }
+
     if (SUCCEEDED(hr))
     {
         IShellItem* item;
