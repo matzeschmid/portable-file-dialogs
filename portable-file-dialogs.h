@@ -265,6 +265,7 @@ protected:
 class dialog : protected settings, protected platform
 {
 public:
+    virtual ~dialog() = default;
     bool ready(int timeout = default_wait_timeout) const;
     bool kill() const;
 
@@ -1132,10 +1133,12 @@ inline internal::file_dialog::file_dialog(type in_type,
         OPENFILENAMEW ofn;
         memset(&ofn, 0, sizeof(ofn));
         ofn.lStructSize = sizeof(OPENFILENAMEW);
-        if (GetForegroundWindow() == GetActiveWindow()) {
+        if (GetForegroundWindow() == GetActiveWindow())
+        {
             ofn.hwndOwner = GetActiveWindow();
         }
-        else {
+        else
+        {
             ofn.hwndOwner = GetForegroundWindow();
         }
 
@@ -1171,6 +1174,9 @@ inline internal::file_dialog::file_dialog(type in_type,
 
         if (in_type == type::save)
         {
+            auto wextension = std::wstring(3, L'\0');
+            ofn.lpstrDefExt = (LPWSTR)wextension.data();
+
             if (!(options & opt::force_overwrite))
                 ofn.Flags |= OFN_OVERWRITEPROMPT;
 
@@ -1449,10 +1455,12 @@ inline std::string internal::file_dialog::select_folder_vista(IFileDialog *ifd, 
     ifd->SetOptions(FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM);
     ifd->SetTitle(m_wtitle.c_str());
 
-    if (GetForegroundWindow() == GetActiveWindow()) {
+    if (GetForegroundWindow() == GetActiveWindow())
+    {
         hr = ifd->Show(GetActiveWindow());
     }
-    else {
+    else
+    {
         hr = ifd->Show(GetForegroundWindow());
     }
 
